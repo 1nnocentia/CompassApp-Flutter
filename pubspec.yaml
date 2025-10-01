@@ -1,0 +1,10 @@
+name: compass_app_workspace
+description: A workspace for the Compass App sample application
+publish_to: none
+
+environment:
+  sdk: ^3.9.0-0
+
+workspace:
+  - app
+  - server
