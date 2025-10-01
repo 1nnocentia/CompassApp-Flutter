@@ -9,6 +9,7 @@ import '../../utils/result.dart';
 
 class SharedPreferencesService {
   static const _tokenKey = 'TOKEN';
+  static const _userNameKey = 'USER_NAME';
   final _log = Logger('SharedPreferencesService');
 
   Future<Result<String?>> fetchToken() async {
@@ -35,6 +36,29 @@ class SharedPreferencesService {
       return const Result.ok(null);
     } on Exception catch (e) {
       _log.warning('Failed to set token', e);
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<String?>> fetchUserName() async {
+    try {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      _log.finer('Got user name from SharedPreferences');
+      return Result.ok(sharedPreferences.getString(_userNameKey));
+    } on Exception catch (e) {
+      _log.warning('Failed to get user name', e);
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<void>> saveUserName(String name) async {
+    try {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      _log.finer('Saved user name');
+      await sharedPreferences.setString(_userNameKey, name);
+      return const Result.ok(null);
+    } on Exception catch (e) {
+      _log.warning('Failed to save user name', e);
       return Result.error(e);
     }
   }

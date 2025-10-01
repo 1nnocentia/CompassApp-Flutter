@@ -11,8 +11,13 @@ import '../../../domain/models/activity/activity.dart';
 import '../../../domain/models/continent/continent.dart';
 import '../../../domain/models/destination/destination.dart';
 import '../../../domain/models/user/user.dart';
+import '../../../utils/result.dart';
+import '../shared_preferences_service.dart';
 
 class LocalDataService {
+  LocalDataService({required this.sharedPreferencesService});
+  
+  final SharedPreferencesService sharedPreferencesService;
   List<Continent> getContinents() {
     return [
       const Continent(
@@ -62,10 +67,32 @@ class LocalDataService {
   }
 
   User getUser() {
+    // This is now a sync call, but we'll need to make it async
+    // For now, return default user - will be updated by repository
     return const User(
       name: 'Sofie',
       // For demo purposes we use a local asset
       picture: 'assets/user.jpg',
     );
+  }
+
+  Future<User> getUserAsync() async {
+    final result = await sharedPreferencesService.fetchUserName();
+    String userName;
+    switch (result) {
+      case Ok():
+        userName = result.value ?? 'Sofie';
+      case Error():
+        userName = 'Sofie';
+    }
+    return User(
+      name: userName,
+      // For demo purposes we use a local asset
+      picture: 'assets/user.jpg',
+    );
+  }
+
+  Future<void> updateUserName(String name) async {
+    await sharedPreferencesService.saveUserName(name);
   }
 }

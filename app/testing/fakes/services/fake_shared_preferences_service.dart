@@ -7,6 +7,7 @@ import 'package:compass_app/utils/result.dart';
 
 class FakeSharedPreferencesService implements SharedPreferencesService {
   String? token;
+  String? userName;
 
   @override
   Future<Result<String?>> fetchToken() async {
@@ -16,6 +17,17 @@ class FakeSharedPreferencesService implements SharedPreferencesService {
   @override
   Future<Result<void>> saveToken(String? token) async {
     this.token = token;
+    return Result.ok(null);
+  }
+
+  @override
+  Future<Result<String?>> fetchUserName() async {
+    return Result.ok(userName);
+  }
+
+  @override
+  Future<Result<void>> saveUserName(String name) async {
+    userName = name;
     return Result.ok(null);
   }
 }

@@ -9,4 +9,7 @@ import '../../../utils/result.dart';
 abstract class UserRepository {
   /// Get current user
   Future<Result<User>> getUser();
+  
+  /// Update user name
+  Future<Result<void>> updateUserName(String name);
 }

@@ -3,25 +3,49 @@
 // found in the LICENSE file.
 
 import '../../../utils/result.dart';
+import '../../services/shared_preferences_service.dart';
 import 'auth_repository.dart';
 
 class AuthRepositoryDev extends AuthRepository {
-  /// User is always authenticated in dev scenarios
-  @override
-  Future<bool> get isAuthenticated => Future.value(true);
+  AuthRepositoryDev({SharedPreferencesService? sharedPreferencesService})
+      : _sharedPreferencesService = sharedPreferencesService ?? SharedPreferencesService();
 
-  /// Login is always successful in dev scenarios
+  final SharedPreferencesService _sharedPreferencesService;
+  
+  /// Check authentication status based on stored token
+  @override
+  Future<bool> get isAuthenticated async {
+    final result = await _sharedPreferencesService.fetchToken();
+    switch (result) {
+      case Ok():
+        return result.value != null && result.value!.isNotEmpty;
+      case Error():
+        return false;
+    }
+  }
+
+  /// Login with simple email/password validation for development
   @override
   Future<Result<void>> login({
     required String email,
     required String password,
   }) async {
-    return const Result.ok(null);
+    // Simple validation for development
+    if (email == 'email@example.com' && password == 'password') {
+      // Save a token to mark as logged in
+      await _sharedPreferencesService.saveToken('dev_token_123');
+      notifyListeners();
+      return const Result.ok(null);
+    } else {
+      return Result.error(Exception('Invalid credentials'));
+    }
   }
 
-  /// Logout is always successful in dev scenarios
+  /// Logout removes the token
   @override
   Future<Result<void>> logout() async {
+    await _sharedPreferencesService.saveToken(null);
+    notifyListeners();
     return const Result.ok(null);
   }
 }

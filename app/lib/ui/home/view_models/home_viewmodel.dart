@@ -22,6 +22,7 @@ class HomeViewModel extends ChangeNotifier {
        _userRepository = userRepository {
     load = Command0(_load)..execute();
     deleteBooking = Command1(_deleteBooking);
+    updateUserName = Command1(_updateUserName);
   }
 
   final BookingRepository _bookingRepository;
@@ -32,6 +33,7 @@ class HomeViewModel extends ChangeNotifier {
 
   late Command0 load;
   late Command1<void, int> deleteBooking;
+  late Command1<void, String> updateUserName;
 
   List<BookingSummary> get bookings => _bookings;
 
@@ -88,6 +90,26 @@ class HomeViewModel extends ChangeNotifier {
       }
 
       return resultLoadBookings;
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<Result<void>> _updateUserName(String name) async {
+    try {
+      final result = await _userRepository.updateUserName(name);
+      switch (result) {
+        case Ok<void>():
+          _log.fine('Updated user name to $name');
+          // Update the local user data
+          if (_user != null) {
+            _user = User(name: name, picture: _user!.picture);
+          }
+        case Error<void>():
+          _log.warning('Failed to update user name', result.error);
+          return result;
+      }
+      return result;
     } finally {
       notifyListeners();
     }

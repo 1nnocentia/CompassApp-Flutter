@@ -100,8 +100,17 @@ List<SingleChildWidget> get providersRemote {
 /// The user is always logged in.
 List<SingleChildWidget> get providersLocal {
   return [
-    ChangeNotifierProvider.value(value: AuthRepositoryDev() as AuthRepository),
-    Provider.value(value: LocalDataService()),
+    Provider.value(value: SharedPreferencesService()),
+    ChangeNotifierProvider(
+      create: (context) => AuthRepositoryDev(
+        sharedPreferencesService: context.read(),
+      ) as AuthRepository,
+    ),
+    Provider(
+      create: (context) => LocalDataService(
+        sharedPreferencesService: context.read(),
+      ),
+    ),
     Provider(
       create: (context) =>
           DestinationRepositoryLocal(localDataService: context.read())

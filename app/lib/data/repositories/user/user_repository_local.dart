@@ -15,6 +15,20 @@ class UserRepositoryLocal implements UserRepository {
 
   @override
   Future<Result<User>> getUser() async {
-    return Result.ok(_localDataService.getUser());
+    try {
+      final user = await _localDataService.getUserAsync();
+      return Result.ok(user);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<void>> updateUserName(String name) async {
+    try {
+      await _localDataService.updateUserName(name);
+      return const Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 }

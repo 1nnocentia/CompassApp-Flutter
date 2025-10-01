@@ -34,4 +34,17 @@ class UserRepositoryRemote implements UserRepository {
         return Result.error(result.error);
     }
   }
+
+  @override
+  Future<Result<void>> updateUserName(String name) async {
+    // For remote repository, we would typically make an API call here
+    // For now, just update the cached data
+    if (_cachedData != null) {
+      _cachedData = User(
+        name: name,
+        picture: _cachedData!.picture,
+      );
+    }
+    return const Result.ok(null);
+  }
 }

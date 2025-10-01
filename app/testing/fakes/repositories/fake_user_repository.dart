@@ -9,8 +9,19 @@ import 'package:compass_app/utils/result.dart';
 import '../../models/user.dart';
 
 class FakeUserRepository implements UserRepository {
+  User _currentUser = user;
+
   @override
   Future<Result<User>> getUser() async {
-    return Result.ok(user);
+    return Result.ok(_currentUser);
+  }
+
+  @override
+  Future<Result<void>> updateUserName(String name) async {
+    _currentUser = User(
+      name: name,
+      picture: _currentUser.picture,
+    );
+    return const Result.ok(null);
   }
 }

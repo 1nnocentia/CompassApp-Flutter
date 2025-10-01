@@ -46,32 +46,89 @@ class HomeHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: Dimens.paddingVertical),
-        _Title(text: AppLocalization.of(context).nameTrips(user.name)),
+        _EditableTitle(text: AppLocalization.of(context).nameTrips(user.name), viewModel: viewModel),
       ],
     );
   }
 }
 
-class _Title extends StatelessWidget {
-  const _Title({required this.text});
+class _EditableTitle extends StatelessWidget {
+  const _EditableTitle({required this.text, required this.viewModel});
 
   final String text;
+  final HomeViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => RadialGradient(
-        center: Alignment.bottomLeft,
-        radius: 2,
-        colors: [Colors.purple.shade700, Colors.purple.shade400],
-      ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-      child: Text(
-        text,
-        style: GoogleFonts.rubik(
-          textStyle: Theme.of(context).textTheme.headlineLarge,
-        ),
+    return GestureDetector(
+      onTap: () => _showEditNameDialog(context),
+      child: Row(
+        children: [
+          Expanded(
+            child: ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (bounds) => RadialGradient(
+                center: Alignment.bottomLeft,
+                radius: 2,
+                colors: [Colors.purple.shade700, Colors.purple.shade400],
+              ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+              child: Text(
+                text,
+                style: GoogleFonts.rubik(
+                  textStyle: Theme.of(context).textTheme.headlineLarge,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.edit,
+            color: Colors.purple.shade400,
+            size: 20,
+          ),
+        ],
       ),
+    );
+  }
+
+  void _showEditNameDialog(BuildContext context) {
+    final controller = TextEditingController();
+    final currentUser = viewModel.user;
+    if (currentUser != null) {
+      controller.text = currentUser.name;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Your Name'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Your Name',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final newName = controller.text.trim();
+                if (newName.isNotEmpty) {
+                  viewModel.updateUserName.execute(newName);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
